@@ -1,68 +1,113 @@
 const linkMemes = [
-  "https://www.reddit.com/r/MAAU/",
-  "https://www.reddit.com/r/memes/",
-  "https://www.reddit.com/r/dankmemes/",
-  "https://www.reddit.com/r/Memes_Of_The_Dank",
-  "https://www.reddit.com/r/4chan"
+  "https://www.reddit.com/r/MAAU/new/",
+  "https://www.reddit.com/r/DylanteroYT/new/",
+  "https://www.reddit.com/r/MAAU/top/",
+  "https://www.reddit.com/r/DylanteroYT/hot/",
+  "https://www.reddit.com/r/MAAU/hot/",
+  "https://www.reddit.com/r/DylanteroYT/top/",
+  "https://www.reddit.com/r/Colombia/hot/",
+  "https://www.reddit.com/r/Colombia/new/",
+  "https://www.reddit.com/r/Colombia/top/"
 ];
-const {token}=require("./settings.json")
+
+Object.defineProperty(Array.prototype, "flat", {
+  value: function(depth = 1) {
+    return this.reduce(function(flat, toFlatten) {
+      return flat.concat(
+        Array.isArray(toFlatten) && depth > 1
+          ? toFlatten.flat(depth - 1)
+          : toFlatten
+      );
+    }, []);
+  }
+});
+
+const storyLinks = ["https://www.reddit.com/r/entitledparents/new/"];
+const historias = [];
 //packages
-const {Client} = require("discord.js"), // discord bots
+var img = [];
+const Discord = require("discord.js"), // discord bots
   axios = require("axios"), //http request
   cheerio = require("cheerio"); //web scrapping
-//links
-var img = [];
+const help = new Discord.MessageEmbed()
+  .setTitle(
+    "puro momo rey 🤑" // luego se ponen bravos xd
+  )
+  .setDescription(
+    "``` *help te da informacion sobre los comandos ( for now the bot is only in spanih, but in a future it will be memes in english :D)\n\n *monda de solo puro momo \n\n  *bruh : si \n\n  *nm para agregar nuevos memes  \n\n *cm solo te da informacion de cuantos memes tienes \n\n *meme solo te da un momo \n\n *callao es solo para insultar ```"
+  );
 //objects
-const commands = {
-    "/callao": function(msg) {
-      msg.channel.send("when haces tus momos en video :V");
+
+const client = new Discord.Client(),
+  commands = {
+    "*callao": async function(msg) {
+      msg.channel.send("Come monda echee <@720304994523283497>");
     },
-    "/newMomo": function(msg) {
+    "*nm": async function(msg) {
+      msg.channel.send("se busco un nuevo momo");
       linkMemes.map(i => {
-        axios
-          .get(i)
-          .then(r => {
-            let $ = cheerio.load(r.data);
-            $("._2_tDEnGMLxpM6uOa2kaDB3").each((i, e) => {
-              img.push($(e).attr("src"));
-            });
-          })
-          .catch(e => {
-            if (e) {
-              msg.channel.send(" no se ha encontrado un buen momo");
-            }
+        axios.get(i).then(r => {
+          let $ = cheerio.load(r.data);
+          $("._2_tDEnGMLxpM6uOa2kaDB3").each((i, e) => {
+            img.push($(e).attr("src"));
           });
+        });
       });
     },
+    "*meme": async function(msg) {
+      let exampleEmbed = new Discord.MessageEmbed()
+        .setTitle(
+          "un momo :regional_indicator_b: :regional_indicator_r:  :regional_indicator_u: :regional_indicator_h:"
+        )
+        .setImage(img[Math.floor(Math.random() * img.length)]);
+      msg.channel.send(exampleEmbed);
     },
-    "/momo": function(msg) {
-      msg.channel.send(img[Math.floor(Math.random() * img.length)]);
+    "*bruh": msg => {
+      msg.channel.send(":flushed:");
+      msg.channel.send("<:typescript:791822787689971772>")
+      msg.channel.send("https://media.giphy.com/media/VIOkcgpsnA2Zy/200.gif");
     },
-    "/monda": function(msg) {
+    "*cm": async function(msg) {
+      msg.channel.send(`la cantidad de momos es : ${img.length}`);
+    },
+
+    "*monda": async function(msg) {
+      // no te va a funcionar si pones una lista asi , no deberias de hacer , por ahora solo pon una secuencia tipo     mmmh no  sabia
+      msg.channel.send("El pana brother jorge floyd todo un idolo  :bruh:");
+      msg.channel.send("https://www.youtube.com/watch?v=IRZWiqBHYaY");
       msg.channel.send(
-        "https://www.infobae.com/new-resizer/8iwerQ0t9dEThspv78qqDC0L7Uc=/768x432/filters:format(jpg):quality(85)/cloudfront-us-east-1.images.arcpublishing.com/infobae/GGPDEBMJVNDIDAOTSULULDIVDA.jpg"
+        "https://ichef.bbci.co.uk/news/640/cpsprodpb/8862/production/_112541943_whatsubject.jpg"
       );
+
+      // salte y vuelve a meterte si quieres seguir probando, el servidor no se   quiere reiniciar    carajo
+    },
+    
+    "*chill" : async function(msg){
+      msg.channel.send("chill")
+    },
+    
+    "*help": async function(msg) {
+      msg.channel.send(help);
     }
   };
 
-Client.on("ready", () => {
-  Client.user.setPresence({
-    game: { name: "with discord.js" },
-    status: "idle"
+client.on("ready", () => {
+  client.user.setPresence({
+    game: {
+      name: "a",
+      type: "WATCHING"
+    },
+    status: "*help"
   });
 
-  console.log(`${Client.user.username} is up and running!`);
-
-  console.log(`BOT_JOSE LISTO!!! ${Client.user.tag}!`);
+  console.log(`ready ${client.user.tag}!`);
 });
-
-
-Client.on("message", msg => {
+client.on("message", msg => {
   if (commands.hasOwnProperty(msg.content)) {
     commands[msg.content](msg);
   }
-  if (/\:v/i.test(msg.content) && !msg.author.bot) {
-    msg.author.send("viva la grasa :V");
+  if (/\chill/i.test(msg.content) && !msg.author.bot) {
+    msg.author.send("chill");
   }
 });
-Client.login(token);
+client.login("token");
